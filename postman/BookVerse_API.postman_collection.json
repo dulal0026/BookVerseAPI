@@ -1,0 +1,209 @@
+{
+  "info": {
+    "_postman_id": "3dfb430d-33ea-4e9e-b5c1-2b31a348d105",
+    "name": "BookVerse API — Contract Draft",
+    "description": "Contract-only collection generated from docs/API_SPECIFICATION.md (v1.0.0 draft). Requests are not expected to succeed until the corresponding backend phase is implemented. Money values are integer poisha.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "adminAccessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "bookId", "value": "book_01" },
+    { "key": "bookSlug", "value": "atomic-habits" },
+    { "key": "addressId", "value": "addr_01" },
+    { "key": "quoteId", "value": "quote_01" },
+    { "key": "orderId", "value": "order_01" }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health check (planned Phase 1)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] },
+            "description": "Planned operational endpoint. The API contract does not yet define its response shape."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Ayesha Rahman\",\n  \"email\": \"ayesha@example.com\",\n  \"password\": \"change-this-in-real-use\",\n  \"phone\": \"+8801712345678\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Customer login",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const response = pm.response.json();", "if (response.data?.access_token) pm.collectionVariables.set('accessToken', response.data.access_token);", "if (response.data?.refresh_token) pm.collectionVariables.set('refreshToken', response.data.refresh_token);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"ayesha@example.com\",\n  \"password\": \"change-this-in-real-use\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Refresh session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+          }
+        },
+        {
+          "name": "Current user",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "List books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/books?q=atomic&sort=featured&page=1&limit=20", "host": ["{{baseUrl}}"], "path": ["books"], "query": [{ "key": "q", "value": "atomic" }, { "key": "sort", "value": "featured" }, { "key": "page", "value": "1" }, { "key": "limit", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Book detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/books/{{bookSlug}}", "host": ["{{baseUrl}}"], "path": ["books", "{{bookSlug}}"] }
+          }
+        },
+        {
+          "name": "List categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
+          }
+        },
+        {
+          "name": "Search suggestions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/search/suggestions?q=atomic", "host": ["{{baseUrl}}"], "path": ["search", "suggestions"], "query": [{ "key": "q", "value": "atomic" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer shopping",
+      "item": [
+        {
+          "name": "Get cart",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/cart", "host": ["{{baseUrl}}"], "path": ["cart"] }
+          }
+        },
+        {
+          "name": "Add cart item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"book_id\": \"{{bookId}}\",\n  \"quantity\": 1\n}" },
+            "url": { "raw": "{{baseUrl}}/cart/items", "host": ["{{baseUrl}}"], "path": ["cart", "items"] }
+          }
+        },
+        {
+          "name": "Create address",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"recipient_name\": \"Ayesha Rahman\",\n  \"phone\": \"+8801712345678\",\n  \"line1\": \"House 42, Road 9/A\",\n  \"line2\": \"Dhanmondi\",\n  \"district\": \"Dhaka\",\n  \"postal_code\": \"1209\",\n  \"country_code\": \"BD\",\n  \"is_default\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/me/addresses", "host": ["{{baseUrl}}"], "path": ["me", "addresses"] }
+          }
+        },
+        {
+          "name": "Checkout quote",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const response = pm.response.json();", "if (response.data?.quote_id) pm.collectionVariables.set('quoteId', response.data.quote_id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"address_id\": \"{{addressId}}\",\n  \"shipping_method_id\": \"standard\",\n  \"coupon_code\": \"BOOKVERSE10\"\n}" },
+            "url": { "raw": "{{baseUrl}}/checkout/quote", "host": ["{{baseUrl}}"], "path": ["checkout", "quote"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders and payments",
+      "item": [
+        {
+          "name": "Place COD order",
+          "event": [{ "listen": "pre-request", "script": { "type": "text/javascript", "exec": ["pm.variables.replaceIn('{{$guid}}', (error, value) => pm.request.headers.upsert({ key: 'Idempotency-Key', value }));"] } }, { "listen": "test", "script": { "type": "text/javascript", "exec": ["const response = pm.response.json();", "if (response.data?.id) pm.collectionVariables.set('orderId', response.data.id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }, { "key": "Idempotency-Key", "value": "{{$guid}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"quote_id\": \"{{quoteId}}\",\n  \"address_id\": \"{{addressId}}\",\n  \"shipping_method_id\": \"standard\",\n  \"payment_method\": \"cod\",\n  \"customer_note\": \"Call before delivery\"\n}" },
+            "url": { "raw": "{{baseUrl}}/orders", "host": ["{{baseUrl}}"], "path": ["orders"] }
+          }
+        },
+        {
+          "name": "My orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/me/orders?page=1&limit=20", "host": ["{{baseUrl}}"], "path": ["me", "orders"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Admin login",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const response = pm.response.json();", "if (response.data?.access_token) pm.collectionVariables.set('adminAccessToken', response.data.access_token);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"change-this-in-real-use\"\n}" },
+            "url": { "raw": "{{baseUrl}}/admin/auth/login", "host": ["{{baseUrl}}"], "path": ["admin", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Dashboard summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminAccessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/dashboard/summary", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard", "summary"] }
+          }
+        },
+        {
+          "name": "Create book",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminAccessToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Atomic Habits\",\n  \"slug\": \"atomic-habits\",\n  \"isbn13\": \"9780735211292\",\n  \"description\": \"Description\",\n  \"author_ids\": [\"author_01\"],\n  \"category_id\": \"cat_self_help\",\n  \"publisher\": \"Example Publisher\",\n  \"language\": \"en\",\n  \"format\": \"paperback\",\n  \"page_count\": 320,\n  \"price\": 69900,\n  \"compare_at_price\": 89900,\n  \"status\": \"draft\",\n  \"tags\": [\"bestseller\"],\n  \"image_ids\": [\"media_01\"]\n}" },
+            "url": { "raw": "{{baseUrl}}/admin/books", "host": ["{{baseUrl}}"], "path": ["admin", "books"] }
+          }
+        }
+      ]
+    }
+  ]
+}
